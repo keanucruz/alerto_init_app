@@ -1,4 +1,4 @@
-import 'package:app/feature/dashboard/repository/location_service_repository.dart';
+import 'package:app/feature/location/repository/location_service_repository.dart';
 import 'package:fpdart/fpdart.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';

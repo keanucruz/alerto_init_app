@@ -1,5 +1,6 @@
 import 'package:app/core/util/custom_snackbar.dart';
-import 'package:app/feature/dashboard/viewmodel/location_service_viewmodel.dart';
+import 'package:app/feature/location/viewmodel/location_service_viewmodel.dart';
+import 'package:app/feature/openweathermap/viewmodel/weather_viewmodel.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
@@ -13,6 +14,7 @@ class DashboardPage extends ConsumerStatefulWidget {
 class _DashboardPageState extends ConsumerState<DashboardPage> {
   String? _latitudeResult;
   String? _longtitudeResult;
+  String? _tempResult;
   @override
   Widget build(BuildContext context) {
     ref.listen(locationServiceViewModelProvider, (_, next) {
@@ -26,6 +28,8 @@ class _DashboardPageState extends ConsumerState<DashboardPage> {
     bool isLoading =
         ref.watch(locationServiceViewModelProvider)?.isLoading == true ||
             ref.watch(locationServiceViewModelProvider) is AsyncLoading;
+
+    final weatherViewModel = ref.watch(weatherViewmodelProvider.notifier);
     return Scaffold(
       body: isLoading
           ? const Center(
@@ -37,22 +41,34 @@ class _DashboardPageState extends ConsumerState<DashboardPage> {
               children: [
                 _latitudeResult == null
                     ? const Text('')
-                    : Text(_latitudeResult!),
+                    : Text("Latitude: ${_latitudeResult!}"),
                 _longtitudeResult == null
                     ? const Text('')
-                    : Text(_longtitudeResult!),
+                    : Text('Longtitude: ${_longtitudeResult!}'),
+                _tempResult == null
+                    ? const Text('')
+                    : Text('Temp: ${_tempResult!}'),
                 ElevatedButton(
                   onPressed: () async {
                     final result = await ref
                         .watch(locationServiceViewModelProvider.notifier)
                         .determinePosition();
 
+                    final temp = await weatherViewModel.getWeatherDetails(
+                        latitude: result!.latitude.toString(),
+                        longtitude: result.longitude.toString());
+
                     setState(() {
-                      _latitudeResult = result?.latitude.toString();
-                      _longtitudeResult = result?.longitude.toString();
+                      _latitudeResult = result.latitude.toString();
+                      _longtitudeResult = result.longitude.toString();
+                      _tempResult = temp!.main.temp.toString();
                     });
                   },
                   child: const Text('Get Location'),
+                ),
+                ElevatedButton(
+                  onPressed: () async {},
+                  child: const Text('Get Weather'),
                 )
               ],
             ),

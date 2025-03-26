@@ -1,4 +1,5 @@
 import 'package:app/core/util/custom_snackbar.dart';
+import 'package:app/core/util/heat_index_alert_level.dart';
 import 'package:app/feature/location/viewmodel/location_service_viewmodel.dart';
 import 'package:app/feature/openweathermap/viewmodel/weather_viewmodel.dart';
 import 'package:flutter/material.dart';
@@ -15,6 +16,7 @@ class _DashboardPageState extends ConsumerState<DashboardPage> {
   String? _latitudeResult;
   String? _longtitudeResult;
   String? _tempResult;
+  String? _heatIndex;
   @override
   Widget build(BuildContext context) {
     ref.listen(locationServiceViewModelProvider, (_, next) {
@@ -48,6 +50,23 @@ class _DashboardPageState extends ConsumerState<DashboardPage> {
                 _tempResult == null
                     ? const Text('')
                     : Text('Temp: ${_tempResult!}'),
+                _heatIndex == null
+                    ? const Text('')
+                    : Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text('Heat Index: ${_heatIndex!}'),
+                          Text(
+                            HeatIndexAlertLevel.getHeatIndexWarning(
+                                double.tryParse(_heatIndex!) ?? 0),
+                            style: TextStyle(
+                              fontWeight: FontWeight.bold,
+                              color: HeatIndexAlertLevel.getHeatIndexColor(
+                                  double.tryParse(_heatIndex!) ?? 0),
+                            ),
+                          ),
+                        ],
+                      ),
                 ElevatedButton(
                   onPressed: () async {
                     final result = await ref
@@ -62,6 +81,7 @@ class _DashboardPageState extends ConsumerState<DashboardPage> {
                       _latitudeResult = result.latitude.toString();
                       _longtitudeResult = result.longitude.toString();
                       _tempResult = temp!.main.temp.toString();
+                      _heatIndex = temp.main.feelsLike.toString();
                     });
                   },
                   child: const Text('Get Location'),

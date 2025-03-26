@@ -23,7 +23,7 @@ class WeatherRepository {
     try {
       final response = await http.get(
         Uri.parse(
-            "${BaseUrl.address}/weather?lat=$latitude&lon=$longtitude&appid=$apiKey"),
+            "${BaseUrl.address}/weather?lat=$latitude&lon=$longtitude&appid=$apiKey&units=metric"),
       );
 
       if (response.statusCode != 200) {

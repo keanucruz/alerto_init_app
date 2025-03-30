@@ -1,11 +1,11 @@
 import 'package:app/core/theme/theme.dart';
 import 'package:app/feature/dashboard/view/dashboard_page.dart';
-import 'package:app/feature/dashboard/view/test_ui.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 Future<void> main() async {
+  WidgetsFlutterBinding.ensureInitialized();
   await dotenv.load(fileName: ".env");
   runApp(const ProviderScope(child: MyApp()));
 }

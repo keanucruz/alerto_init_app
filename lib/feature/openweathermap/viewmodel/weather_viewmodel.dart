@@ -22,10 +22,14 @@ class WeatherViewmodel extends _$WeatherViewmodel {
 
     final apiKey = dotenv.env['OPENWEATHERMAP_API_KEY'];
 
+    if (apiKey == null) {
+      state = const AsyncError('API key not found', StackTrace.empty);
+      return null;
+    }
     final response = await _weatherRepository.getWeatherDetails(
       latitude: latitude,
       longtitude: longtitude,
-      apiKey: apiKey!,
+      apiKey: apiKey,
     );
 
     switch (response) {

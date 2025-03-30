@@ -43,32 +43,32 @@ class TestUi extends ConsumerWidget {
             ),
           ),
           body: Padding(
-            padding: EdgeInsets.all(36),
+            padding: const EdgeInsets.all(36),
             child: Center(
               child: Column(
                 children: [
-                  Text(
+                  const Text(
                     '28 C°',
                     style: TextStyle(
                       fontSize: 55,
                       fontWeight: FontWeight.w900,
                     ),
                   ),
-                  Text(
+                  const Text(
                     'Dagupan City',
                     style: TextStyle(
                       fontSize: 32,
                       fontWeight: FontWeight.bold,
                     ),
                   ),
-                  Text(
+                  const Text(
                     'Clouds',
                     style: TextStyle(
                       fontSize: 23,
                       fontWeight: FontWeight.w500,
                     ),
                   ),
-                  Text(
+                  const Text(
                     'overcast clouds',
                     style: TextStyle(
                       fontSize: 15,
@@ -78,14 +78,14 @@ class TestUi extends ConsumerWidget {
                   Lottie.asset(
                     'assets/alternate.json',
                   ),
-                  Text(
+                  const Text(
                     'Heat Index: 51°',
                     style: TextStyle(
                       fontSize: 20,
                       fontWeight: FontWeight.w500,
                     ),
                   ),
-                  Text(
+                  const Text(
                     'EXTREME DANGER',
                     style: TextStyle(
                       fontSize: 20,
@@ -93,7 +93,7 @@ class TestUi extends ConsumerWidget {
                       color: Colors.redAccent,
                     ),
                   ),
-                  IconButton(onPressed: () {}, icon: Icon(Icons.search))
+                  IconButton(onPressed: () {}, icon: const Icon(Icons.search))
                 ],
               ),
             ),

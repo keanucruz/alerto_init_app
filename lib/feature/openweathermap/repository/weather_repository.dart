@@ -34,6 +34,7 @@ class WeatherRepository {
       final weatherResponse = WeatherResponse.fromJson(resBodyMap);
       return Right(weatherResponse);
     } catch (e) {
+      print(e.toString());
       return Left(AppFailure(message: e.toString()));
     }
   }

@@ -172,24 +172,51 @@ class _DashboardPageState extends ConsumerState<DashboardPage> {
                               ),
                         IconButton(
                           onPressed: () async {
-                            final result = await ref
-                                .watch(
-                                    locationServiceViewModelProvider.notifier)
-                                .determinePosition();
+                            try {
+                              final result = await ref
+                                  .watch(
+                                      locationServiceViewModelProvider.notifier)
+                                  .determinePosition();
 
-                            final weather =
-                                await weatherViewModel.getWeatherDetails(
-                                    latitude: result!.latitude.toString(),
-                                    longtitude: result.longitude.toString());
+                              if (result == null) {
+                                if (context.mounted) {
+                                  CustomSnackbar.showSnackBar(
+                                      "Couldn't get your location",
+                                      true,
+                                      context);
+                                }
+                                return;
+                              }
 
-                            setState(() {
-                              _tempResult = weather!.main.temp.toString();
-                              _heatIndex = weather.main.feelsLike.toString();
-                              _location = weather.name.toUpperCase();
-                              _weatherMain = weather.weather.first.main;
-                              _weatherDescription =
-                                  weather.weather.first.description;
-                            });
+                              final res =
+                                  await weatherViewModel.getWeatherDetails(
+                                      latitude: result.latitude.toString(),
+                                      longtitude: result.longitude.toString());
+
+                              if (res == null) {
+                                if (context.mounted) {
+                                  CustomSnackbar.showSnackBar(
+                                      "Couldn't get weather data",
+                                      true,
+                                      context);
+                                }
+                                return;
+                              }
+
+                              setState(() {
+                                _tempResult = res.main.temp.toString();
+                                _heatIndex = res.main.feelsLike.toString();
+                                _location = res.name.toUpperCase();
+                                _weatherMain = res.weather.first.main;
+                                _weatherDescription =
+                                    res.weather.first.description;
+                              });
+                            } catch (e) {
+                              if (context.mounted) {
+                                CustomSnackbar.showSnackBar(
+                                    e.toString(), true, context);
+                              }
+                            }
                           },
                           icon: const Icon(Icons.search),
                         ),

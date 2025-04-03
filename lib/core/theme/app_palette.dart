@@ -4,7 +4,7 @@ class AppPalette {
   static const cardColor = Color.fromRGBO(30, 30, 30, 1);
   static const subtitleText = Color(0xffa7a7a7);
   static const inactiveBottomBarItemColor = Color(0xffababab);
-  static const primaryColor = Color(0xFFAA4EB9);
+  static const primaryColor = Color.fromARGB(255, 238, 194, 99);
   static const primaryDarkColor = Color.fromARGB(255, 78, 72, 102);
 
   static const Color backgroundColor = Color.fromRGBO(18, 18, 18, 1);

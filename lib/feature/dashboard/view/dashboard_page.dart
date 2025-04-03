@@ -1,6 +1,7 @@
 import 'package:app/core/util/custom_snackbar.dart';
 import 'package:app/core/util/heat_index_alert_level.dart';
-import 'package:app/feature/dashboard/widget/glassmorphic.dart';
+import 'package:app/core/widget/app_loader.dart';
+import 'package:app/feature/dashboard/widget/background_image.dart';
 import 'package:app/feature/location/viewmodel/location_service_viewmodel.dart';
 import 'package:app/feature/openweathermap/viewmodel/weather_viewmodel.dart';
 import 'package:flutter/material.dart';
@@ -15,21 +16,38 @@ class DashboardPage extends ConsumerStatefulWidget {
 }
 
 class _DashboardPageState extends ConsumerState<DashboardPage> {
-  String? _tempResult;
-  String? _location;
-  String? _heatIndex;
-  String? _weatherMain;
-  String? _weatherDescription;
+  String? tempResult;
+  String? location;
+  String? heatIndex;
+  String? weatherMain;
+  String? weatherDescription;
+
+  String displayAnimation(String? weatherMain) {
+    if (weatherMain == null) return "assets/alternate.json";
+
+    switch (weatherMain.toLowerCase()) {
+      case 'clouds':
+      case 'mist':
+      case 'smoke':
+      case 'haze':
+      case 'dust':
+      case 'fog':
+        return 'assets/cloudy.json';
+      case 'rain':
+      case 'drizzle':
+      case 'shower rain':
+        return 'assets/rainy.json';
+      case 'thunderstorm':
+        return 'assets/thunder.json';
+      case 'clear':
+        return 'assets/sunny.json';
+      default:
+        return 'assets/sunny.json';
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
-    ref.listen(locationServiceViewModelProvider, (_, next) {
-      next?.when(
-          data: (data) {},
-          error: (error, st) {
-            CustomSnackbar.showSnackBar(error.toString(), true, context);
-          },
-          loading: () {});
-    });
     bool isLoading =
         ref.watch(locationServiceViewModelProvider)?.isLoading == true ||
             ref.watch(locationServiceViewModelProvider) is AsyncLoading;
@@ -39,191 +57,210 @@ class _DashboardPageState extends ConsumerState<DashboardPage> {
 
     final weatherViewModel = ref.watch(weatherViewmodelProvider.notifier);
     return Scaffold(
-      appBar: PreferredSize(
-        preferredSize: const Size.fromHeight(120),
-        child: Padding(
-          padding: const EdgeInsets.all(36.0),
-          child: GestureDetector(
-            onTap: () {},
-            child: const Row(
-              crossAxisAlignment: CrossAxisAlignment.center,
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                Glassmorphism(
-                  blur: 10,
-                  opacity: 0.2,
-                  radius: 12,
-                  width: 50,
-                  height: 50,
-                  child: Icon(Icons.question_mark, color: Colors.white),
-                ),
-                Glassmorphism(
-                  blur: 10,
-                  opacity: 0.2,
-                  radius: 12,
-                  width: 50,
-                  height: 50,
-                  child: Icon(Icons.chat_bubble_outline, color: Colors.white),
-                ),
-              ],
+      body: BackgroundImageFb1(
+        child: isLoading
+            ? const AppLoader()
+            : isNull
+                ? _buildInitialDisplay(weatherViewModel)
+                : _buildResultDisplay(weatherViewModel, context),
+      ),
+    );
+  }
+
+  Widget _buildInitialDisplay(WeatherViewmodel weatherViewModel) {
+    return Padding(
+      padding: const EdgeInsets.all(36),
+      child: Center(
+        child: Stack(fit: StackFit.expand, children: [
+          Center(
+            child: SizedBox(
+              child: Lottie.asset(
+                'assets/alternate.json',
+                fit: BoxFit.contain,
+              ),
             ),
           ),
-        ),
-      ),
-      body: isLoading
-          ? const Center(
-              child: CircularProgressIndicator(),
-            )
-          : isNull
-              ? IconButton(
-                  onPressed: () async {
-                    final result = await ref
-                        .watch(locationServiceViewModelProvider.notifier)
-                        .determinePosition();
-
-                    final weather = await weatherViewModel.getWeatherDetails(
-                        latitude: result!.latitude.toString(),
-                        longtitude: result.longitude.toString());
-
-                    setState(() {
-                      _tempResult = weather!.main.temp.toString();
-                      _heatIndex = weather.main.feelsLike.toString();
-                      _location = weather.name.toUpperCase();
-                      _weatherMain = weather.weather.first.main;
-                      _weatherDescription = weather.weather.first.description;
-                    });
-                  },
-                  icon: const Icon(Icons.search),
-                )
-              : Padding(
-                  padding: const EdgeInsets.all(36),
-                  child: Center(
-                    child: Column(
-                      children: [
-                        _tempResult == null
-                            ? const Text(
-                                "-- C°",
-                                style: TextStyle(
-                                  fontSize: 55,
-                                  fontWeight: FontWeight.w900,
-                                ),
-                              )
-                            : Text(
-                                "${_tempResult!} C°",
-                                style: const TextStyle(
-                                  fontSize: 55,
-                                  fontWeight: FontWeight.w900,
-                                ),
-                              ),
-                        _location == null
-                            ? const Text("--")
-                            : Text(
-                                _location!,
-                                style: const TextStyle(
-                                  fontSize: 32,
-                                  fontWeight: FontWeight.bold,
-                                ),
-                              ),
-                        _weatherMain == null
-                            ? const Text('--')
-                            : Text(
-                                _weatherMain!,
-                                style: const TextStyle(
-                                  fontSize: 23,
-                                  fontWeight: FontWeight.w500,
-                                ),
-                              ),
-                        _weatherDescription == null
-                            ? const Text('--')
-                            : Text(
-                                _weatherDescription!,
-                                style: const TextStyle(
-                                  fontSize: 15,
-                                  fontWeight: FontWeight.w300,
-                                ),
-                              ),
-                        Lottie.asset(
-                          'assets/alternate.json',
-                        ),
-                        _heatIndex == null
-                            ? const Text('')
-                            : Column(
-                                crossAxisAlignment: CrossAxisAlignment.center,
-                                children: [
-                                  Text(
-                                    'Feels like: $_heatIndex °',
-                                    style: const TextStyle(
-                                      fontSize: 20,
-                                      fontWeight: FontWeight.w500,
-                                    ),
-                                  ),
-                                  Text(
-                                    HeatIndexAlertLevel.getHeatIndexWarning(
-                                        double.tryParse(_heatIndex!) ?? 0),
-                                    style: TextStyle(
-                                      fontWeight: FontWeight.bold,
-                                      color:
-                                          HeatIndexAlertLevel.getHeatIndexColor(
-                                              double.tryParse(_heatIndex!) ??
-                                                  0),
-                                    ),
-                                  ),
-                                ],
-                              ),
-                        IconButton(
-                          onPressed: () async {
-                            try {
-                              final result = await ref
-                                  .watch(
-                                      locationServiceViewModelProvider.notifier)
-                                  .determinePosition();
-
-                              if (result == null) {
-                                if (context.mounted) {
-                                  CustomSnackbar.showSnackBar(
-                                      "Couldn't get your location",
-                                      true,
-                                      context);
-                                }
-                                return;
-                              }
-
-                              final res =
-                                  await weatherViewModel.getWeatherDetails(
-                                      latitude: result.latitude.toString(),
-                                      longtitude: result.longitude.toString());
-
-                              if (res == null) {
-                                if (context.mounted) {
-                                  CustomSnackbar.showSnackBar(
-                                      "Couldn't get weather data",
-                                      true,
-                                      context);
-                                }
-                                return;
-                              }
-
-                              setState(() {
-                                _tempResult = res.main.temp.toString();
-                                _heatIndex = res.main.feelsLike.toString();
-                                _location = res.name.toUpperCase();
-                                _weatherMain = res.weather.first.main;
-                                _weatherDescription =
-                                    res.weather.first.description;
-                              });
-                            } catch (e) {
-                              if (context.mounted) {
-                                CustomSnackbar.showSnackBar(
-                                    e.toString(), true, context);
-                              }
-                            }
-                          },
-                          icon: const Icon(Icons.search),
-                        ),
-                      ],
+          Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              const Text(
+                "Wondering kung gaano kainit today?",
+                style: TextStyle(
+                  fontSize: 45,
+                  fontWeight: FontWeight.bold,
+                ),
+                textAlign: TextAlign.center,
+              ),
+              RichText(
+                textAlign: TextAlign.center,
+                text: const TextSpan(children: [
+                  WidgetSpan(
+                    child: Icon(
+                      Icons.location_on,
+                      size: 18,
+                      color: Colors.redAccent,
                     ),
                   ),
+                  TextSpan(
+                      text: "  Location services will be used.",
+                      style: TextStyle(fontSize: 18))
+                ]),
+              ),
+              const SizedBox(
+                height: 24,
+              ),
+              IconButton(
+                onPressed: () async {
+                  final result = await ref
+                      .watch(locationServiceViewModelProvider.notifier)
+                      .determinePosition();
+
+                  final weather = await weatherViewModel.getWeatherDetails(
+                      latitude: result!.latitude.toString(),
+                      longtitude: result.longitude.toString());
+
+                  setState(() {
+                    tempResult = weather!.main.temp.toString();
+                    heatIndex = weather.main.feelsLike.toString();
+                    location = weather.name.toUpperCase();
+                    weatherMain = weather.weather.first.main;
+                    weatherDescription = weather.weather.first.description;
+                  });
+                },
+                icon: const Icon(
+                  Icons.search,
+                  color: Colors.white,
+                  size: 32,
                 ),
+              ),
+            ],
+          ),
+        ]),
+      ),
+    );
+  }
+
+  Widget _buildResultDisplay(
+      WeatherViewmodel weatherViewModel, BuildContext context) {
+    return Padding(
+      padding: const EdgeInsets.all(36),
+      child: Center(
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            tempResult == null
+                ? const Text(
+                    "-- C°",
+                    style: TextStyle(
+                      fontSize: 55,
+                      fontWeight: FontWeight.w900,
+                    ),
+                  )
+                : Text(
+                    "${tempResult!} C°",
+                    style: const TextStyle(
+                      fontSize: 55,
+                      fontWeight: FontWeight.w900,
+                    ),
+                  ),
+            location == null
+                ? const Text("--")
+                : Text(
+                    location!,
+                    style: const TextStyle(
+                      fontSize: 32,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+            weatherMain == null
+                ? const Text('--')
+                : Text(
+                    weatherMain!,
+                    style: const TextStyle(
+                      fontSize: 23,
+                      fontWeight: FontWeight.w500,
+                    ),
+                  ),
+            weatherDescription == null
+                ? const Text('--')
+                : Text(
+                    weatherDescription!,
+                    style: const TextStyle(
+                      fontSize: 15,
+                      fontWeight: FontWeight.w300,
+                    ),
+                  ),
+            Lottie.asset(
+              displayAnimation(weatherMain),
+            ),
+            heatIndex == null
+                ? const Text('')
+                : Column(
+                    crossAxisAlignment: CrossAxisAlignment.center,
+                    children: [
+                      Text(
+                        'Feels like: $heatIndex °',
+                        style: const TextStyle(
+                          fontSize: 20,
+                          fontWeight: FontWeight.w500,
+                        ),
+                      ),
+                      Text(
+                        HeatIndexAlertLevel.getHeatIndexWarning(
+                            double.tryParse(heatIndex!) ?? 0),
+                        style: TextStyle(
+                          fontWeight: FontWeight.bold,
+                          color: HeatIndexAlertLevel.getHeatIndexColor(
+                              double.tryParse(heatIndex!) ?? 0),
+                        ),
+                      ),
+                    ],
+                  ),
+            IconButton(
+              onPressed: () async {
+                try {
+                  final result = await ref
+                      .watch(locationServiceViewModelProvider.notifier)
+                      .determinePosition();
+
+                  if (result == null) {
+                    if (context.mounted) {
+                      CustomSnackbar.showSnackBar(
+                          "Couldn't get your location", true, context);
+                    }
+                    return;
+                  }
+
+                  final res = await weatherViewModel.getWeatherDetails(
+                      latitude: result.latitude.toString(),
+                      longtitude: result.longitude.toString());
+
+                  if (res == null) {
+                    if (context.mounted) {
+                      CustomSnackbar.showSnackBar(
+                          "Couldn't get weather data", true, context);
+                    }
+                    return;
+                  }
+
+                  setState(() {
+                    tempResult = res.main.temp.toString();
+                    heatIndex = res.main.feelsLike.toString();
+                    location = res.name.toUpperCase();
+                    weatherMain = res.weather.first.main;
+                    weatherDescription = res.weather.first.description;
+                  });
+                } catch (e) {
+                  if (context.mounted) {
+                    CustomSnackbar.showSnackBar(e.toString(), true, context);
+                  }
+                }
+              },
+              icon: const Icon(Icons.search),
+            ),
+          ],
+        ),
+      ),
     );
   }
 }

@@ -127,7 +127,7 @@ class AppTheme {
     scaffoldBackgroundColor: Colors.transparent,
     appBarTheme: const AppBarTheme(
       color: Colors.transparent,
-      iconTheme: IconThemeData(color: AppPalette.primaryColor),
+      iconTheme: IconThemeData(color: AppPalette.whiteColor),
     ),
     inputDecorationTheme: InputDecorationTheme(
       contentPadding: const EdgeInsets.all(18),

@@ -1,16 +1,32 @@
-# app
+# Alerto Init
 
-A new Flutter project.
+**ALERTO INIT** is a Flutter-based weather application that provides real-time temperature and heat index information based on the user's location. The app features intuitive animations that reflect current weather conditions and displays heat index warnings with color-coded alerts to help users understand potential health risks.
 
-## Getting Started
+**Features**
 
-This project is a starting point for a Flutter application.
+-Real-time weather data retrieval using OpenWeatherMap API
 
-A few resources to get you started if this is your first Flutter project:
+-Location-based temperature and heat index readings
 
-- [Lab: Write your first Flutter app](https://docs.flutter.dev/get-started/codelab)
-- [Cookbook: Useful Flutter samples](https://docs.flutter.dev/cookbook)
+-Visual weather animations based on current conditions
 
-For help getting started with Flutter development, view the
-[online documentation](https://docs.flutter.dev/), which offers tutorials,
-samples, guidance on mobile development, and a full API reference.
+-Color-coded heat index alerts and safety recommendations
+
+-Simple, user-friendly interface
+
+
+**Future Plans**
+
+After the MVP release, i plan to integrate AI capabilities to provide:
+
+
+-Personalized safety suggestions based on weather conditions
+
+-Predictive heat risk assessments
+
+-Customized health recommendations during extreme weather events
+
+-Smart notifications for dangerous weather changes
+
+-The AI integration will enhance the app's ability to protect users from heat-related illnesses by providing tailored safety advice based on individual factors and current weather conditions.
+
